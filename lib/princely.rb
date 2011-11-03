@@ -27,7 +27,14 @@ class Princely
   #
   def initialize()
     # Finds where the application lives, so we can call it.
-    @exe_path = `which prince`.chomp
+    #    @exe_path = `which prince`.chomp
+# MIQ - replaced above line with the following:
+		if Platform::OS == :win32
+	    @exe_path = "C:/Program Files/Prince/Engine/bin/prince"
+		else
+	    @exe_path = `which prince`.chomp
+		end
+# MIQ - end replacement
     raise "Cannot find prince command-line app in $PATH" if @exe_path.length == 0
   	@style_sheets = ''
   	@log_file = "#{Rails.root}/log/prince.log"
@@ -49,6 +56,10 @@ class Princely
   def exe_path
     # Add any standard cmd line arguments we need to pass
     @exe_path << " --input=html --server --log=#{@log_file} "
+		
+		# MIQ - Added line below to set the base file location folder
+    @exe_path << " --fileroot=#{Rails.public_path}"
+		
     @exe_path << @style_sheets
     return @exe_path
   end
@@ -63,14 +74,22 @@ class Princely
     # Don't spew errors to the standard out...and set up to take IO 
     # as input and output
     path << ' --silent - -o -'
+
     
     # Show the command used...
-    logger.info "\n\nPRINCE XML PDF COMMAND"
-    logger.info path
-    logger.info ''
+#    logger.info "\n\nPRINCE XML PDF COMMAND"
+#    logger.info path
+#    logger.info ''
+		# MIQ - Replaced above logger lines with following lines:
+    logger.info "PRINCE XML PDF COMMAND: " + path
+		# MIQ - End replacement lines
     
     # Actually call the prince command, and pass the entire data stream back.
     pdf = IO.popen(path, "w+")
+		
+		# MIQ - added following line:
+		pdf.binmode if Platform::OS == :win32
+		
     pdf.puts(string)
     pdf.close_write
     result = pdf.gets(nil)
@@ -91,6 +110,10 @@ class Princely
     
     # Actually call the prince command, and pass the entire data stream back.
     pdf = IO.popen(path, "w+")
+		
+		# MIQ - added following line:
+		pdf.binmode if Platform::OS == :win32
+		
     pdf.puts(string)
     pdf.close
   end
