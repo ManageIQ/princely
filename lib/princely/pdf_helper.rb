@@ -55,6 +55,6 @@ module PdfHelper
   
   def stylesheet_file_path(stylesheet)
     stylesheet = stylesheet.to_s.gsub(".css","")
-    File.join(config.stylesheets_dir, "#{stylesheet}.css")
+    "/stylesheets/#{stylesheet}.css"
   end
 end
